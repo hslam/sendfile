@@ -1,5 +1,7 @@
 # sendfile
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/hslam/sendfile)](https://pkg.go.dev/github.com/hslam/sendfile)
+[![Build Status](https://travis-ci.org/hslam/sendfile.svg?branch=master)](https://travis-ci.org/hslam/sendfile)
+[![codecov](https://codecov.io/gh/hslam/sendfile/branch/master/graph/badge.svg)](https://codecov.io/gh/hslam/sendfile)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hslam/sendfile)](https://goreportcard.com/report/github.com/hslam/sendfile)
 [![LICENSE](https://img.shields.io/github/license/hslam/sendfile.svg?style=flat-square)](https://github.com/hslam/sendfile/blob/master/LICENSE)
 
@@ -23,13 +25,11 @@ package main
 import (
 	"fmt"
 	"github.com/hslam/sendfile"
-	"io/ioutil"
 	"net"
 	"os"
 )
 
 func main() {
-	// Set up source data file.
 	srcName := "srcfile"
 	srcFile, err := os.Create(srcName)
 	if err != nil {
@@ -38,44 +38,34 @@ func main() {
 	defer os.Remove(srcName)
 	defer srcFile.Close()
 	contents := "Hello world"
-	offset := 10
-	if offset > 0 {
-		srcFile.Write(make([]byte, offset))
-	}
 	srcFile.Write([]byte(contents))
-	srcFile.Sync()
-
-	done := make(chan bool)
-
-	// Start server listening on a socket.
 	lis, err := net.Listen("tcp", ":9999")
 	if err != nil {
 		panic(err)
 	}
 	defer lis.Close()
+	done := make(chan bool)
 	go func() {
 		conn, err := lis.Accept()
 		if err != nil {
 			panic(err)
 		}
 		defer conn.Close()
-		b, err := ioutil.ReadAll(conn)
-		if string(b) != contents {
-			fmt.Printf("contents not transmitted: got %s (len=%d), want %s\n", string(b), len(b), contents)
+		buf := make([]byte, len(contents))
+		n, _ := conn.Read(buf)
+		if string(buf[:n]) != contents {
+			fmt.Printf("contents not transmitted: got %s (len=%d), want %s\n", string(buf[:n]), n, contents)
 		} else {
-			fmt.Println(string(b))
+			fmt.Println(string(buf[:n]))
 		}
 		done <- true
 	}()
-
-	// Send source file to server.
-	conn, err := net.Dial("tcp", lis.Addr().String())
+	conn, err := net.Dial("tcp", "127.0.0.1:9999")
 	if err != nil {
 		panic(err)
 	}
-	_, err = sendfile.SendFile(conn, int(srcFile.Fd()), int64(offset), int64(len(contents)))
-	if err != nil {
-		fmt.Println(err)
+	if _, err = sendfile.SendFile(conn, int(srcFile.Fd()), 0, int64(len(contents))); err != nil {
+		panic(err)
 	}
 	conn.Close()
 	<-done
