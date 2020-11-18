@@ -7,6 +7,7 @@ package sendfile
 import (
 	"github.com/hslam/mmap"
 	"net"
+	"syscall"
 )
 
 // maxSendfileSize is the largest chunk size we ask the kernel to copy at a time.
@@ -36,7 +37,10 @@ func sendFile(conn net.Conn, src int, pos, remain int64) (written int64, err err
 		} else if n == 0 && errno == nil {
 			break
 		}
-		if errno != nil {
+		if errno == syscall.EAGAIN {
+			continue
+		}
+		if errno != nil && errno != syscall.ENOTSOCK {
 			err = errno
 			break
 		}
