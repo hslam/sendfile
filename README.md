@@ -1,7 +1,6 @@
 # sendfile
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/hslam/sendfile)](https://pkg.go.dev/github.com/hslam/sendfile)
 [![Build Status](https://travis-ci.org/hslam/sendfile.svg?branch=master)](https://travis-ci.org/hslam/sendfile)
-[![codecov](https://codecov.io/gh/hslam/sendfile/branch/master/graph/badge.svg)](https://codecov.io/gh/hslam/sendfile)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hslam/sendfile)](https://goreportcard.com/report/github.com/hslam/sendfile)
 [![LICENSE](https://img.shields.io/github/license/hslam/sendfile.svg?style=flat-square)](https://github.com/hslam/sendfile/blob/master/LICENSE)
 
