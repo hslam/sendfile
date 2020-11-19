@@ -57,7 +57,7 @@ func main() {
 		} else {
 			fmt.Println(string(buf[:n]))
 		}
-		done <- true
+		close(done)
 	}()
 	conn, err := net.Dial("tcp", "127.0.0.1:9999")
 	if err != nil {
