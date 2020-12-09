@@ -45,27 +45,15 @@ func main() {
 	defer lis.Close()
 	done := make(chan bool)
 	go func() {
-		conn, err := lis.Accept()
-		if err != nil {
-			panic(err)
-		}
+		conn, _ := lis.Accept()
 		defer conn.Close()
 		buf := make([]byte, len(contents))
 		n, _ := conn.Read(buf)
-		if string(buf[:n]) != contents {
-			fmt.Printf("contents not transmitted: got %s (len=%d), want %s\n", string(buf[:n]), n, contents)
-		} else {
-			fmt.Println(string(buf[:n]))
-		}
+		fmt.Println(string(buf[:n]))
 		close(done)
 	}()
-	conn, err := net.Dial("tcp", "127.0.0.1:9999")
-	if err != nil {
-		panic(err)
-	}
-	if _, err = sendfile.SendFile(conn, int(srcFile.Fd()), 0, int64(len(contents))); err != nil {
-		panic(err)
-	}
+	conn, _ := net.Dial("tcp", "127.0.0.1:9999")
+	sendfile.SendFile(conn, int(srcFile.Fd()), 0, int64(len(contents)))
 	conn.Close()
 	<-done
 }
