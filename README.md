@@ -53,7 +53,9 @@ func main() {
 		close(done)
 	}()
 	conn, _ := net.Dial("tcp", "127.0.0.1:9999")
-	sendfile.SendFile(conn, int(srcFile.Fd()), 0, int64(len(contents)))
+	if _, err = sendfile.SendFile(conn, int(srcFile.Fd()), 0, int64(len(contents))); err != nil {
+		fmt.Println(err)
+	}
 	conn.Close()
 	<-done
 }
