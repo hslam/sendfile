@@ -10,14 +10,19 @@ import (
 	"syscall"
 )
 
-// maxSendfileSize is the largest chunk size we ask the kernel to copy at a time.
-const maxSendfileSize int = 4 << 20
+const (
+	// maxSendfileSize is the largest chunk size we ask the kernel to copy at a time.
+	maxSendfileSize int = 4 << 20
 
-func sendFile(conn net.Conn, src int, pos, remain int64) (written int64, err error) {
+	// maxBufferSize is the largest chunk size we ask the buffer to copy at a time.
+	maxBufferSize int = 64 << 10
+)
+
+func sendFile(conn net.Conn, src int, pos, remain int64, maxSize int) (written int64, err error) {
 	var b []byte
 	for remain > 0 {
-		n := maxSendfileSize
-		if int(remain) < maxSendfileSize {
+		n := maxSize
+		if int(remain) < maxSize {
 			n = int(remain)
 		}
 		offset := mmap.Offset(pos)

@@ -16,13 +16,13 @@ func SendFile(conn net.Conn, src int, pos, remain int64) (written int64, err err
 	if syscallConn, ok := conn.(syscall.Conn); ok {
 		raw, err := syscallConn.SyscallConn()
 		if err != nil {
-			return sendFile(conn, src, pos, remain)
+			return sendFile(conn, src, pos, remain, maxSendfileSize)
 		}
 		raw.Control(func(fd uintptr) {
 			dst = int(fd)
 		})
 	} else {
-		return sendFile(conn, src, pos, remain)
+		return sendFile(conn, src, pos, remain, maxSendfileSize)
 	}
 	for remain > 0 {
 		n := maxSendfileSize
@@ -41,7 +41,7 @@ func SendFile(conn net.Conn, src int, pos, remain int64) (written int64, err err
 		if errno == syscall.EAGAIN {
 			continue
 		}
-		if errno != nil && errno != syscall.ENOTSOCK {
+		if errno != nil {
 			err = errno
 			break
 		}

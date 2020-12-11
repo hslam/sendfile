@@ -104,7 +104,7 @@ func TestSendMmap(t *testing.T) {
 		t.Error(err)
 	}
 	var written int64
-	written, err = sendFile(conn, int(srcFile.Fd()), int64(offset), int64(len(contents)))
+	written, err = sendFile(conn, int(srcFile.Fd()), int64(offset), int64(len(contents)), maxSendfileSize)
 	if err != nil {
 		t.Error(err)
 	} else if written != int64(len(contents)) {
@@ -114,7 +114,7 @@ func TestSendMmap(t *testing.T) {
 	<-done
 }
 
-func TestSendfileUnix(t *testing.T) {
+func TestSendfileSyscallConn(t *testing.T) {
 	srcName := "srcfile"
 	srcFile, err := os.Create(srcName)
 	if err != nil {
