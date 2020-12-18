@@ -45,7 +45,7 @@ func sendFile(conn net.Conn, src int, pos, remain int64, maxSize int) (written i
 		if errno == syscall.EAGAIN {
 			continue
 		}
-		if errno != nil && errno != syscall.ENOTSOCK {
+		if errno != nil {
 			err = errno
 			break
 		}
