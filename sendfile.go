@@ -39,13 +39,7 @@ func sendFile(conn net.Conn, src int, pos, remain int64, maxSize int) (written i
 			pos += int64(n)
 			written += int64(n)
 			remain -= int64(n)
-		} else if n == 0 && errno == nil {
-			break
-		}
-		if errno == syscall.EAGAIN {
-			continue
-		}
-		if errno != nil {
+		} else if (n == 0 && errno == nil) || (errno != nil && errno != syscall.EAGAIN) {
 			err = errno
 			break
 		}
