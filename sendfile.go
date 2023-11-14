@@ -26,14 +26,12 @@ func sendFile(conn net.Conn, src int, pos, remain int64, maxSize int) (written i
 			n = int(remain)
 		}
 		offset := mmap.Offset(pos)
-		if offset < pos {
-			pos = int64(pos - offset)
-		}
-		b, err = mmap.Open(src, offset, int(pos)+n, mmap.READ)
+		rel := pos - offset
+		b, err = mmap.Open(src, offset, int(rel)+n, mmap.READ)
 		if err != nil {
 			return
 		}
-		n, errno := conn.Write(b[pos : pos+int64(n)])
+		n, errno := conn.Write(b[rel : rel+int64(n)])
 		mmap.Munmap(b)
 		if n > 0 {
 			pos += int64(n)

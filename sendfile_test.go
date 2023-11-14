@@ -73,6 +73,15 @@ func TestSendfile(t *testing.T) {
 }
 
 func TestSendMmap(t *testing.T) {
+	testSendMmap(0, t)
+	testSendMmap(10, t)
+	pagesize := os.Getpagesize()
+	testSendMmap(pagesize-1, t)
+	testSendMmap(pagesize, t)
+	testSendMmap(pagesize+1, t)
+}
+
+func testSendMmap(offset int, t *testing.T) {
 	srcName := "srcfile"
 	srcFile, err := os.Create(srcName)
 	if err != nil {
@@ -81,7 +90,6 @@ func TestSendMmap(t *testing.T) {
 	defer os.Remove(srcName)
 	defer srcFile.Close()
 	contents := "Hello world"
-	offset := 10
 	if offset > 0 {
 		srcFile.Write(make([]byte, offset))
 	}
